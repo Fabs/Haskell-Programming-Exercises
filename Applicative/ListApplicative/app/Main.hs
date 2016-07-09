@@ -9,3 +9,6 @@ main = do
   putStr "Verifying List is a valid Functor and Applicative using 'checkers' library"
   verifyListIsFunctor
   verifyListIsApplicative
+  putStr "\n Verifying ZipList' is a valid Functor and Applicative using 'checkers' library"
+  verifyZipList'IsFunctor
+  verifyZipList'IsApplicative

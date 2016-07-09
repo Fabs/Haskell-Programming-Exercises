@@ -3,6 +3,8 @@ module Lib
     (
       verifyListIsApplicative
     , verifyListIsFunctor
+    , verifyZipList'IsFunctor
+    , verifyZipList'IsApplicative
     , take'
     , List (Cons, Nil)
     ) where
@@ -31,9 +33,6 @@ instance Applicative List where
   (<*>) Nil _ = Nil
   (<*>) _ Nil = Nil
   (<*>) a b = flatMap (\x -> x <$> b) a where
-    append :: List a -> List a -> List a
-    append Nil ys = ys
-    append (Cons x xs) ys = Cons x $ xs `append` ys
     fold :: (a -> b -> b) -> b -> List a -> b
     fold _ b' Nil = b'
     fold f b' (Cons h t) = f h (fold f b' t)
@@ -42,6 +41,10 @@ instance Applicative List where
     -- write this in terms of concat' and fmap
     flatMap :: (a' -> List b') -> List a' -> List b'
     flatMap f as = concat' $ f <$> as
+
+append :: List a -> List a -> List a
+append Nil ys = ys
+append (Cons x xs) ys = Cons x $ xs `append` ys
 
 -- Use checkers to verify the Applicative for List is valid
 verifyListIsApplicative :: IO ()
@@ -54,14 +57,33 @@ take' i (Cons x xs)
   | otherwise = Nil
 
 -- ZipList newtype
-newtype ZiplList' a =
+newtype ZipList' a =
   ZipList' (List a)
   deriving (Eq, Show)
 
--- Required for QuickCheck arbitrary
+
+instance Functor ZipList' where
+  fmap f (ZipList' xs) = ZipList' $ fmap f xs
+
+-- Use checkers to verify the Fuctor for ZipList' is valid
+verifyZipList'IsFunctor :: IO ()
+verifyZipList'IsFunctor = quickBatch $ functor (undefined :: ZipList' (String, String, String))
+
+instance Applicative ZipList' where
+  pure a                        = ZipList' $ Cons a (pure a)
+  (<*>) _ (ZipList' Nil)        = ZipList' Nil
+  (<*>) (ZipList' Nil) _        = ZipList' Nil
+  (<*>) (ZipList' (Cons f fs)) (ZipList' (Cons x xs))
+    = ZipList' $ Cons (f x) (fs <*> xs)
+
+-- Use checkers to verify the Fuctor for ZipList' is valid
+verifyZipList'IsApplicative :: IO ()
+verifyZipList'IsApplicative = quickBatch $ applicative (undefined :: ZipList' (String, String, String))
+
+-- Required for checkers
 instance (Eq a) => EqProp (List a) where (=-=) = eq
 
--- Functor QuickCheck arbitrary
+-- QuickCheck arbitrary
 instance Arbitrary a => Arbitrary (List a) where
   arbitrary = do 
     a' <- arbitrary
@@ -69,3 +91,14 @@ instance Arbitrary a => Arbitrary (List a) where
     list <- elements [Cons a' (ls), Nil]
     return $ list
 
+-- Required for checkers
+instance Eq a => EqProp (ZipList' a) where
+  xs =-= ys = xs' `eq` ys'
+    where xs' = let (ZipList' l) = xs
+                in take' 3000 l
+          ys' = let (ZipList' l) = ys
+                in take' 3000 l
+
+-- QuickCheck arbitrary for ZipList'
+instance Arbitrary a => Arbitrary (ZipList' a) where
+  arbitrary = ZipList' <$> arbitrary
