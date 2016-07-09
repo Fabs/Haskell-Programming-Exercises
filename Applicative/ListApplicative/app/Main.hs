@@ -1,8 +1,11 @@
 module Main where
 
---import Lib (ourAdd)
+import Lib
 
-import Text.Printf (printf)
+--import Text.Printf (printf)
 
 main :: IO ()
-main = printf "Nothing"
+main = do
+  putStr "Verifying List is a valid Functor and Applicative using 'checkers' library"
+  verifyListIsFunctor
+  verifyListIsApplicative
