@@ -3,6 +3,8 @@ module Lib
     (
       verifyListIsApplicative
     , verifyListIsFunctor
+    , take'
+    , List (Cons, Nil)
     ) where
 
 import Test.QuickCheck
@@ -44,6 +46,17 @@ instance Applicative List where
 -- Use checkers to verify the Applicative for List is valid
 verifyListIsApplicative :: IO ()
 verifyListIsApplicative = quickBatch $ applicative (Cons ("1", (1::Integer), True) Nil)
+
+take' :: Int -> List a -> List a
+take' _ Nil   = Nil
+take' i (Cons x xs)
+  | i > 0     = (Cons x Nil) `append` (take' (i-1) xs)
+  | otherwise = Nil
+
+-- ZipList newtype
+newtype ZiplList' a =
+  ZipList' (List a)
+  deriving (Eq, Show)
 
 -- Required for QuickCheck arbitrary
 instance (Eq a) => EqProp (List a) where (=-=) = eq
