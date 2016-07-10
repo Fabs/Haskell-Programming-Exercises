@@ -42,6 +42,6 @@ main = do
   putStrLn ""
 
   putStr "Verify Four' applicative"
-  verifyFourIsFunctor
-  verifyFourIsApplicative
+  verifyFour'IsFunctor
+  verifyFour'IsApplicative
   putStrLn ""
