@@ -25,6 +25,7 @@ instance Monad (Nope) where
 
 checkNope :: IO ()
 checkNope = do
+  putStrLn "== Checking Nope Monad =="
   let a = (undefined :: Nope (Int, Int, Int))
   quickBatch $ functor a
   quickBatch $ applicative a

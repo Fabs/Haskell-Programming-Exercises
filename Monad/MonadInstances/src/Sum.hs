@@ -20,22 +20,21 @@ instance Functor (Sum a) where
   fmap _ (First a)  = (First a)
   fmap f (Second b) = (Second (f b))
 
-verifySumIsFunctor :: IO ()
-verifySumIsFunctor = quickBatch $ functor (undefined :: Sum (Int,Int,Int) (Int,Int,Int))
-
 instance Applicative (Sum a) where
   pure  = Second
   (<*>) (First x) _           = First x
   (<*>) _ (First x)           = First x
   (<*>) (Second a) (Second b) = Second (a b)
 
-verifySumIsApplicative :: IO ()
-verifySumIsApplicative = quickBatch $ applicative (undefined :: Sum (Int,Int,Int) (Int,Int,Int))
-
 instance Monad (Sum a) where
   return    = pure
   (>>=) (Second a) ma = ma a
   (>>=) (First a) _   = First a
 
-verifySumIsMonad :: IO ()
-verifySumIsMonad = quickBatch $ monad (undefined :: Sum (Int,Int,Int) (Int,Int,Int))
+checkSum :: IO ()
+checkSum = do
+  putStrLn "== Checking Sum Monad =="
+  let a = (undefined :: Sum (Int, Int, Int) (Int,Int,Int))
+  quickBatch $ functor a
+  quickBatch $ applicative a
+  quickBatch $ monad a
