@@ -20,10 +20,22 @@ instance Functor (PhhhbbtttEither b) where
   fmap _ (PhhhbbtttEither.Right b)  = (PhhhbbtttEither.Right b)
   fmap f (PhhhbbtttEither.Left b) = (PhhhbbtttEither.Left (f b))
 
+instance Applicative (PhhhbbtttEither b) where
+  pure  = PhhhbbtttEither.Left
+  (<*>) (PhhhbbtttEither.Left x) (PhhhbbtttEither.Left y)
+                                      = PhhhbbtttEither.Left (x y)
+  (<*>) (PhhhbbtttEither.Right x) _   = PhhhbbtttEither.Right x
+  (<*>) _ (PhhhbbtttEither.Right x)   = PhhhbbtttEither.Right x
+
+instance Monad (PhhhbbtttEither b) where
+  return    = pure
+  (>>=) (PhhhbbtttEither.Left x) ma = ma x
+  (>>=) (PhhhbbtttEither.Right x) _ = PhhhbbtttEither.Right x
+
 checkPhhhbbtttEither :: IO ()
 checkPhhhbbtttEither = do
   putStrLn "== Checking PhhhbbtttEither Monad =="
   let a = (undefined :: PhhhbbtttEither (Int, String, Int) (String,Int,Int))
   quickBatch $ functor a
---  quickBatch $ applicative a
---  quickBatch $ monad a
+  quickBatch $ applicative a
+  quickBatch $ monad a
