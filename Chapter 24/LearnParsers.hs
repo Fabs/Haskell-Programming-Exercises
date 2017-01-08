@@ -46,10 +46,7 @@ Exercises: Parsing Practice
 3.
 -}
 myStringParser :: String -> Parser String 
-myStringParser (x:xs) = do
-  xP <- char x
-  xsP <- myStringParser xs
-  return (xP:xsP)
+myStringParser (x:xs) = char x >> myStringParser xs >> return (x:xs)
 myStringParser ([])   = return ([])
 
 myOneTwoThree = myStringParser "123"
