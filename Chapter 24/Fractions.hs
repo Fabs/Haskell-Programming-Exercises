@@ -44,3 +44,14 @@ testVirtuous = do
   print $ parseString virtuousFraction mempty alsoBad
   print $ parseString virtuousFraction mempty shouldWork
   print $ parseString virtuousFraction mempty shouldAlsoWork
+
+-- Exercise: Try Try
+parseFractionalDecimal :: Parser Rational
+parseFractionalDecimal = do
+  whole_part <- decimal
+  char '.'
+  fraction_part <- decimal
+  return ((toRational whole_part) + (fraction_part % (10 ^ (length (show fraction_part)) )))
+
+parseFractional :: Parser Rational
+parseFractional = (try virtuousFraction) <|> (try parseFractionalDecimal)
