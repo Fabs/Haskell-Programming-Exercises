@@ -1,0 +1,23 @@
+name:                chapter24
+version:             0.1.0.0
+synopsis:            Chapter 24 exercies
+description:         Please see README.md
+license:             PublicDomain
+author:              David Parrish
+maintainer:          daveparrish@tutanota.com
+build-type:          Simple
+extra-source-files:  README.md
+cabal-version:       >=1.10
+
+library
+  hs-source-dirs:      src
+  exposed-modules:     Text.Fractions
+                     , LearnParsers
+                     , ParseTestCaseHelpers
+                     , UnitOfSuccess
+                     , ChapterExercises_1
+                     , ChapterExercises_2_3
+                     , ChapterExercises_4
+  build-depends:       base >= 4.7 && < 5
+                     , trifecta
+  default-language:    Haskell2010

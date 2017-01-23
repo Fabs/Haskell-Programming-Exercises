@@ -1,3 +1,7 @@
+{-# OPTIONS_GHC -Wall -Werror #-}
+
+module ChapterExercises_1 where
+
 import Text.Trifecta
 import Data.List
 import Data.Char
@@ -11,6 +15,7 @@ data NumberOrString = NOSS String
 
 instance Ord NumberOrString where
   (<=) (NOSI _) (NOSS _) = True
+  (<=) (NOSS _) (NOSI _) = False
   (<=) (NOSI x) (NOSI y) = x <= y
   (<=) (NOSS x) (NOSS y) = x <= y
 
@@ -31,16 +36,17 @@ instance Ord SemVer where
     | p1 /= p2     = p1 <= p2
     | rel1 == []   = False
     | rel1 /= rel2 = rel1 <= rel2
+  (<=) (SemVer _ _ _ _ _) (SemVer _ _ _ _ _) = undefined
 
 parseSemVer :: Parser SemVer
 parseSemVer = do
   major <- decimal
   minor <- char '.' >> decimal
   patch <- char '.' >> decimal
-  release <- try $ ((char '-' >> parseNumberOrStringList) <|> return []) 
+  release' <- try $ ((char '-' >> parseNumberOrStringList) <|> return []) 
   metadata <- try $ ((char '+' >> parseNumberOrStringList) <|> return [])
   eof
-  return $ SemVer major minor patch release metadata
+  return $ SemVer major minor patch release' metadata
 
 parseNumberOrString :: Parser NumberOrString
 parseNumberOrString = (try decimal >>= return . NOSI)
@@ -50,7 +56,9 @@ parseNumberOrStringList :: Parser [NumberOrString]
 parseNumberOrStringList = sepBy parseNumberOrString (char '.') 
 
 -- Tests
+ver1 :: SemVer
 ver1 = SemVer 2 1 1 [] []
+ver2 :: SemVer
 ver2 = SemVer 2 1 0 [] []
 
 -- Main runs a series of tests
@@ -90,13 +98,13 @@ main = do
   print $ SemVer 2 1 1 [] [] > SemVer 2 1 0 [] []
 
 parseSuccessCase :: String -> SemVer -> IO ()
-parseSuccessCase c expected = do
+parseSuccessCase c expected' = do
   putStr $ c ++ ": " 
   case parseString parseSemVer mempty c of
     Success m -> do putStrLn "\x1b[32m" >> print (Success m)
-                    if (m == expected)
+                    if (m == expected')
                     then return ()
-                    else putStr "\x1b[31mexpected: " >> print expected
+                    else putStr "\x1b[31mexpected: " >> print expected'
     f -> print f
   putStr "\x1b[0m"
 
@@ -108,6 +116,7 @@ parseFailCase c = do
     Success _ -> putStr "\x1b[31mshould not parse but did."
   putStrLn "\x1b[0m"
 
+verifyGreaterThan :: SemVer -> SemVer -> IO ()
 verifyGreaterThan v1 v2 = do
   putStr $ (show v1) ++ " > " ++ (show v2) ++ ": "
   if v1 > v2
