@@ -19,6 +19,7 @@ library
                      , ChapterExercises_2_3
                      , ChapterExercises_4
                      , ChapterExercises_5
+                     , ChapterExercises_6
   build-depends:       base >= 4.7 && < 5
                      , trifecta
                      , raw-strings-qq
