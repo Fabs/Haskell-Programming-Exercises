@@ -20,9 +20,11 @@ library
                      , ChapterExercises_4
                      , ChapterExercises_5
                      , ChapterExercises_6
+                     , ChapterExercises_7
   build-depends:       base >= 4.7 && < 5
                      , trifecta
                      , raw-strings-qq
                      , hspec
                      , QuickCheck
+                     , HUnit
   default-language:    Haskell2010

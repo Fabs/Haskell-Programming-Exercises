@@ -2,7 +2,7 @@
 
 Use `stack ghci` to load code and execute functions
 
-## Exercise 5.
+## Exercise 5
 
 Sorry, it is a bit of a mess. Here are the functions I created.
 
@@ -13,3 +13,12 @@ For some summing tests run: `ChapterExercises_5.testSectionSum`
 Summary of the time for each activity in the example log. `ChapterExercises_5.printSumTimeForEachActivity`
 
 I had to be a little picky about how I was generating my Arbitrary data, but I was able to satisfy a bi-directional parsing test. See the function `ChapterExercises_5.testBidirectionalParsing`.
+
+## Exercise 6
+
+Run `ChapterExercises_6.parserTests` to run a few tests for IPv4.
+
+## Exercise 7
+
+Run `ChapterExercises_7.parserTests` to run a few Perser tests for IPv6.
+Run `ChapterExercises_7.testIPv6Helpers` to run a more tests for IPv6 parsing and other helper functions.
