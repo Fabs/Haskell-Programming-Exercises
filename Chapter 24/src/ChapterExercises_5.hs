@@ -10,6 +10,7 @@ import Control.Applicative
 import Text.RawString.QQ
 import Data.List
 import Test.Hspec
+import Test.HUnit
 import Numeric
 import Text.Printf
 import qualified Test.QuickCheck as QC
@@ -352,7 +353,7 @@ testSectionSum = hspec $ do
                   , ("Breakfast",60)
                   , ("Sanitizing moisture collector",900)
                   ]
-        Nothing -> putStrLn "Failed to parse"
+        Nothing -> assertFailure "Failed to parse"
     it "can combine duplicate SectionSums" $ do
       let m = parseString parseSection mempty case1
           r' = maybeSuccess m
@@ -363,7 +364,7 @@ testSectionSum = hspec $ do
                   , ("Breakfast",60*2)
                   , ("Sanitizing moisture collector",900*2)
                   ]
-        Nothing -> putStrLn "Failed to parse"
+        Nothing -> assertFailure "Failed to parse"
 
 -- Get the average of each activity,
 -- includes time before first activity as an activity
@@ -383,7 +384,7 @@ testSectionActivityAverage = hspec $ --do
         Just s -> let sums = sumUpSection s
                   in  (activityAverage $ sumUpSection s) `shouldBe`
                   ((24*60) / toRational (length sums))
-        Nothing -> putStrLn "Failed to parse"
+        Nothing -> assertFailure "Failed to parse"
 
 -- Print the average of log file example as a Double
 printAverageForEachActivity :: IO ()
