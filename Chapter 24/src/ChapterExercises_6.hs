@@ -5,12 +5,20 @@ module ChapterExercises_6 where
 import Text.Trifecta
 import Data.Word
 import ParseTestCaseHelpers
+import Data.Bits
 
 newtype Octet = Octet Word8
   deriving (Eq, Show)
 
 newtype IPAddress = IPAddress Word32
-  deriving (Eq, Ord, Show)
+  deriving (Eq, Ord)
+
+instance Show IPAddress where
+  show (IPAddress w32) =
+    let so :: Int -> String
+        so i =  show $ shiftR w32 (8*i)
+            .&. (toEnum . fromEnum) (maxBound :: Word8)
+    in  so 3 ++ "." ++ so 2 ++ "." ++ so 1 ++ "." ++ so 0
 
 parseIPAddress :: Parser IPAddress
 parseIPAddress = do
