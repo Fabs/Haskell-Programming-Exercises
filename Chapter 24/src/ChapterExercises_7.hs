@@ -6,6 +6,7 @@ import Control.Applicative
 import Text.Trifecta
 import Data.Word
 import Numeric
+import Data.Bits
 
 import Test.Hspec
 import Test.HUnit
@@ -13,7 +14,18 @@ import Test.HUnit
 import ParseTestCaseHelpers
 
 data IPAddress6 = IPAddress6 Word64 Word64
-  deriving (Eq, Ord, Show)
+  deriving (Eq, Ord)
+
+-- Show IPAddress6 in expanded form
+instance Show IPAddress6 where
+  show (IPAddress6 w1 w2) =
+    let sg :: Word64 -> Int -> String
+        sg w i = showHex (shiftR w (16*i)
+                       .&. (toEnum . fromEnum) (maxBound :: Word16)) ""
+    in  sg w1 3  ++ ":" ++ sg w1 2 ++ ":" ++ sg w1 1 ++ ":" ++ sg w1 0
+        ++ ":" ++ sg w2 3  ++ ":" ++ sg w2 2 ++ ":" ++ sg w2 1 ++ ":"
+        ++ sg w2 0
+
 
 ipv6toInteger :: IPAddress6 -> Integer
 ipv6toInteger (IPAddress6 w1 w2) =
