@@ -22,3 +22,11 @@ Run `ChapterExercises_6.parserTests` to run a few tests for IPv4.
 
 Run `ChapterExercises_7.parserTests` to run a few Perser tests for IPv6.
 Run `ChapterExercises_7.testIPv6Helpers` to run a more tests for IPv6 parsing and other helper functions.
+
+## Exercise 8
+
+See `Show` instances for `IPAddress` and `IPAddress6`
+
+## Exersice 9
+
+See function `ChapterExercises_7.toIPAddress6`

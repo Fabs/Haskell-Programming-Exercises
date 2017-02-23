@@ -12,6 +12,7 @@ import Test.Hspec
 import Test.HUnit
 
 import ParseTestCaseHelpers
+import qualified ChapterExercises_6 as IPv4
 
 data IPAddress6 = IPAddress6 Word64 Word64
   deriving (Eq, Ord)
@@ -25,7 +26,6 @@ instance Show IPAddress6 where
     in  sg w1 3  ++ ":" ++ sg w1 2 ++ ":" ++ sg w1 1 ++ ":" ++ sg w1 0
         ++ ":" ++ sg w2 3  ++ ":" ++ sg w2 2 ++ ":" ++ sg w2 1 ++ ":"
         ++ sg w2 0
-
 
 ipv6toInteger :: IPAddress6 -> Integer
 ipv6toInteger (IPAddress6 w1 w2) =
@@ -196,3 +196,9 @@ testIPv6Helpers = hspec $ -- do
     it "'::4' IPv6 to decimal" $ do
       let (Success p) = parseString parseIPAddress6 mempty "::4"
       ipv6toInteger p `shouldBe` 4
+
+toIPAddress6 :: IPv4.IPAddress -> IPAddress6
+toIPAddress6 (IPv4.IPAddress w) =
+  let ffff :: Word64
+      ffff = (toEnum . fromEnum) (maxBound :: Word16)
+  in  IPAddress6 0 ((shiftL ffff 32) + ((toEnum . fromEnum) w))
