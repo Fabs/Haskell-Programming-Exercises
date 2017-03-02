@@ -21,8 +21,10 @@ library
                      , ChapterExercises_5
                      , ChapterExercises_6
                      , ChapterExercises_7
+                     , ChapterExercises_10
   build-depends:       base >= 4.7 && < 5
                      , trifecta
+                     , text
                      , raw-strings-qq
                      , hspec
                      , QuickCheck
