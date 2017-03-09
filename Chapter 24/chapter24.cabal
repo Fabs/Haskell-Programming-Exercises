@@ -29,4 +29,5 @@ library
                      , hspec
                      , QuickCheck
                      , HUnit
+                     , haphviz
   default-language:    Haskell2010

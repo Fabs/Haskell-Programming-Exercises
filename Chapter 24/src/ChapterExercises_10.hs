@@ -1,66 +1,40 @@
 {-# OPTIONS_GHC -Wall -Werror #-}
+{-# LANGUAGE  QuasiQuotes #-}
 
 module ChapterExercises_10 where
 
 --import Control.Applicative
 import Text.Trifecta
 import Data.Text
+import qualified Text.Dot.Types.Internal as G
+import Text.RawString.QQ
+import Data.Char
 
 --import Test.Hspec
 --import Test.HUnit
 
 import ParseTestCaseHelpers
 
--- Taken from https://github.com/NorfairKing/haphviz/blob/master/src/Text/Dot/Types/Internal.hs#L64
--- | Haphviz internal graph content AST
-data Dot = Node NodeId [Attribute]
-         | Edge NodeId NodeId [Attribute]
-         | Declaration DecType [Attribute]
-         | Ranksame Dot
-         | Subgraph Text Dot
-         | RawDot Text
-         | Label Text
-         | Rankdir RankdirType
-         | DotSeq Dot Dot
-         | DotEmpty
-    deriving (Show, Eq)
+parseDotGraph :: Parser G.DotGraph
+parseDotGraph = do
+  skipComments
+  n <- string "graph " >> parseGraphName
+  return $ G.Graph G.DirectedGraph n G.DotEmpty
 
--- | Attribute name: just text
-type AttributeName = Text
+parseGraphName :: Parser G.GraphName
+parseGraphName = do
+  n <- many $ satisfy isAlphaNum
+  return $ pack n
 
--- | Attribute value: just text
-type AttributeValue = Text
-
--- | Attribute: a tuple of name and value.
-type Attribute = (AttributeName, AttributeValue)
-
--- | A node identifier.
---
--- This is either a user supplied name or a generated numerical identifier.
-data NodeId = UserId Text
-            | Nameless Int
-    deriving (Show, Eq)
-
--- | Declaration type
---
--- Used to declare common attributes for nodes or edges.
-data DecType = DecGraph
-             | DecNode
-             | DecEdge
-    deriving (Show, Eq)
-
--- | Rankdir Type
---
--- Used to specify the default node layout direction
-data RankdirType = LR
-                 | RL
-                 | TB
-                 | BT
-    deriving (Show, Eq)
-
-
-parseDot :: Parser Dot
+parseDot :: Parser G.Dot
 parseDot = undefined
+
+skipComments :: Parser ()
+skipComments = skipMany $
+  char '/' >> char '/' >> skipMany (noneOf "\n") >> skipEOL
+
+skipEOL :: Parser ()
+skipEOL = skipMany (oneOf "\n")
 
 -- Run a series of simple parsing tests
 -- with fixed inputs and fixed expected results
@@ -68,14 +42,20 @@ parserTests :: IO ()
 parserTests = do
   putStrLn "\nTesting Dot parser:"
 
-  parseSuccessCase parseDot "fefe" DotEmpty
-  --parseFailCase parseIPv6Group "11111"
+  parseSuccessCase skipComments "// hello comment here  !  " $ ()
+  parseSuccessCase parseGraphName "yogogogo" (pack "yogogogo")
+  parseSuccessCase parseDotGraph dotGraphEx1 $
+    G.Graph G.DirectedGraph (pack "graphname") G.DotEmpty
 
-  --parseSuccessCase parseIPv6Sections "0000:001" $ [Group 0, Group 1]
-  --parseSuccessCase parseIPv6Sections "0000:1:001" $
-  --  [Group 0, Group 1, Group 1]
-  --parseSuccessCase parseIPv6Sections "0000:1::001" $
-  --  [Group 0, Group 1, Collapse, Group 1]
-  --parseSuccessCase parseIPv6Sections "0000:1::001" $
-  --  [Group 0, Group 1, Collapse, Group 1]
-  --parseFailCase parseIPv6Sections "1:1::1::11"
+  --parseSuccessCase parseDotGraph "fefe" $
+  --  G.Graph G.UndirectedGraph (pack "test") G.DotEmpty
+  --parseSuccessCase parseDot "fefe" G.DotEmpty
+
+dotGraphEx1 :: String
+dotGraphEx1 = [r|// The graph name and the semicolons are optional
+graph graphname {
+    a -- b -- c;
+    b -- d;
+}
+|]
+
