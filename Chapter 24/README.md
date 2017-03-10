@@ -30,3 +30,7 @@ See `Show` instances for `IPAddress` and `IPAddress6`
 ## Exersice 9
 
 See function `ChapterExercises_7.toIPAddress6`
+
+## Exercise 10
+
+Very naive start to parsing the DOT language. I have basic parsing of undirected Dot Edges but have not completed building the DOT AST imported from `haphviz` package. See `ChapterExercises_10.parseTests`.
