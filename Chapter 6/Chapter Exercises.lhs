@@ -1,3 +1,5 @@
+> import Data.List
+
 Multiple choice
 
 1. c
@@ -114,3 +116,163 @@ Chapter Exercises.lhs:106:25: error:
     |
 106 | > equalityForall p p' = p > p'
     |                         ^^^^^^
+
+Match the types
+
+1. Replacement will NOT typecheck because i returns a number but the type
+   cannot be known by i without a typeclass or concrete type in type definition
+
+   i :: a
+   i = 1
+
+   Chapter Exercises.lhs:123:7: error:
+       • No instance for (Num a) arising from the literal ‘1’
+         Possible fix:
+           add (Num a) to the context of
+             the type signature for:
+               i :: forall a. a
+       • In the expression: 1
+         In an equation for ‘i’: i = 1
+       |
+   123 | > i = 1
+       |
+
+
+   λ let i = 1
+   λ :i i
+   i :: Num p => p         -- Defined at <interactive>:1:5
+
+2. Will NOT typecheck because 1.0 cannot be understood by Num typeclass.
+
+   f :: Num a => a
+   f = 1.0
+
+   Chapter Exercises.lhs:141:7: error:
+       • Could not deduce (Fractional a) arising from the literal ‘1.0’
+         from the context: Num a
+           bound by the type signature for:
+                      f :: forall a. Num a => a
+           at Chapter Exercises.lhs:140:3-17
+         Possible fix:
+           add (Fractional a) to the context of
+             the type signature for:
+               f :: forall a. Num a => a
+       • In the expression: 1.0
+         In an equation for ‘f’: f = 1.0
+       |
+   141 | > f = 1.0
+       |       ^^^
+
+   λ let f = 1.0
+   λ :i f
+   f :: Fractional p => p  -- Defined at <interactive>:3:5
+
+3. Will typecheck because 1.0 is understood by the Fractional typeclass.
+
+   λ let f = 1.0
+   λ :i f
+   f :: Fractional p => p  -- Defined at <interactive>:1:5
+
+4. Will typecheck because 1.0 is understood by the RealFrac typeclass.
+
+   λ let f = 1.0
+   λ :i f
+   f :: Fractional p => p  -- Defined at <interactive>:3:5
+
+5. Will typecheck because adding a Ord typeclass won't change the `id` function
+
+   λ let freud x = x
+   λ :i freud
+   freud :: p -> p         -- Defined at <interactive>:1:5
+
+6. Will typecheck because adding a concert type is OK for restricting a function which uses the first parameter for the return
+
+   λ let freud x = x
+   λ :i freud
+   freud :: p -> p         -- Defined at <interactive>:1:5
+
+7. Will NOT typecheck because 'a' could be something other than an Int
+
+> myX = 1 :: Int
+
+   sigmund :: Int -> Int
+   sigmund x = myX
+
+   λ let myX = 1
+   λ :i myX
+   myX :: Num p => p       -- Defined at <interactive>:11:5
+
+   λ :i sigmund
+   sigmund :: p -> Int     -- Defined at <interactive>:4:5
+
+8. Will NOT typecheck because Num could be something other than an Int
+
+   sigmund' :: Int -> Int
+   sigmund' x = myX
+
+   λ :i sigmund
+   sigmund :: p -> Int     -- Defined at <interactive>:4:5
+
+9. Will typecheck because sort can work on a list
+
+   jung :: [Int] -> Int
+   jung xs = head (Data.List.sort xs)
+
+   λ :i jung
+   jung :: Ord a => [a] -> a       -- Defined at <interactive>:2:5
+
+10. Will typecheck because it is the same type signature as 'jung' and we already know that works
+
+    young :: Ord a => [a] -> a
+    young xs = head (sort xs)
+
+    λ :i young
+    young :: Ord a => [a] -> a      -- Defined at <interactive>:1:5
+
+11. Will NOT typecheck mySort is specific to 'Char' concrete type can cannot work for any 'Ord'
+
+    > mySort :: [Char] -> [Char]
+    > mySort = sort
+
+    > signifier :: [Char] -> Char
+    > signifier xs = head (mySort xs)
+
+    Chapter Exercises.lhs:225:31: error:
+        • Couldn't match type ‘a’ with ‘Char’
+          ‘a’ is a rigid type variable bound by
+            the type signature for:
+              signifier :: forall a. Ord a => [a] -> a
+            at Chapter Exercises.lhs:224:3-32
+          Expected type: [Char]
+            Actual type: [a]
+        • In the first argument of ‘mySort’, namely ‘xs’
+          In the first argument of ‘head’, namely ‘(mySort xs)’
+          In the expression: head (mySort xs)
+        • Relevant bindings include
+            xs :: [a] (bound at Chapter Exercises.lhs:225:13)
+            signifier :: [a] -> a (bound at Chapter Exercises.lhs:225:3)
+        |
+    225 | > signifier xs = head (mySort xs)
+        |                               ^^
+
+    λ :i signifier
+    signifier :: [Char] -> Char     -- Defined at <interactive>:3:5
+
+Type-Kwon-Do Two: Electric Typealoo
+
+2.
+
+> chk :: Eq b => (a -> b) -> a -> b -> Bool
+
+One possible solution is to see if the result of the function equals the 'b' passed in as the 3rd parameter
+
+> chk f a b = (f a) == b
+
+3.
+
+> arith :: Num b => (a -> b) -> Integer -> a -> b
+
+One possiblility is to add 'i' to the result of the applied function '(a -> b) a'. Just need to convert
+'Integer' to 'Num' with 'fromInteger'
+
+> arith f i a = (f a) + (fromInteger i)
