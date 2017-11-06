@@ -260,7 +260,7 @@ Match the types
 
 Type-Kwon-Do Two: Electric Typealoo
 
-2.
+1.
 
 > chk :: Eq b => (a -> b) -> a -> b -> Bool
 
@@ -268,7 +268,7 @@ One possible solution is to see if the result of the function equals the 'b' pas
 
 > chk f a b = (f a) == b
 
-3.
+2.
 
 > arith :: Num b => (a -> b) -> Integer -> a -> b
 
