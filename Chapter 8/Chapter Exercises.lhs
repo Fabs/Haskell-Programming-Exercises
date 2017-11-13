@@ -76,9 +76,12 @@ go 1 2 7
 
 Fixing dividedBy
 
-> dividedBy' :: Integral a => a -> a -> (a, a)
-> dividedBy' num denom = go num denom 0
->   where go n  d count
->          | (abs n) < (abs d) = (count, n)
->          | (n < 0 && d > 0) || (n > 0 && d < 0) = go (n+d) d (count - 1)
->          | otherwise = go (n-d) d (count + 1)
+> dividedBy' :: Integral a => a -> a -> Maybe (a, a)
+> dividedBy' _ 0 = Nothing
+> dividedBy' 0 _ = Just (0, 0)
+> dividedBy' num denom = Just $ go num denom 0
+>   where
+>     sign = (num*denom) `div` (abs (num*denom))
+>     go n d count
+>      | abs n < abs d = (count*sign, n)
+>      | otherwise = go (n-(d*sign)) d (count + 1)
