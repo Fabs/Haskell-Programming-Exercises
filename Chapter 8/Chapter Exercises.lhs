@@ -85,3 +85,13 @@ Fixing dividedBy
 >     go n d count
 >      | abs n < abs d = (count*sign, n)
 >      | otherwise = go (n-(d*sign)) d (count + 1)
+
+MaCarthy 91 function
+
+> mc91 x
+>   | x <= 100  = mc91 . mc91 $ x + 11
+>   | otherwise = x - 10
+
+Numbers into words
+
+See WordNumber.hs
