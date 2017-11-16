@@ -24,3 +24,14 @@ Data.Char
 
 > q4 ('w':'o':'o':'t':[]) = "WOOT"
 > q4 x = q3 x
+
+5.
+6.
+
+> capHead :: String -> Char
+> -- capHead ([]) = error "Sorry! Empty string is not allowed."
+> capHead = (toUpper . head)
+
+Ciphers
+
+See Chipher.hs
