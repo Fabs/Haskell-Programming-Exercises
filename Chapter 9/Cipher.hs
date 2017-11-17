@@ -40,4 +40,4 @@ ceaserShift i c
 unCeaser :: Int    -- Number of left shifts
          -> String -- Encoded message
          -> String -- Original message
-unCeaser i = ceaser (-i)
+unCeaser = ceaser . negate
