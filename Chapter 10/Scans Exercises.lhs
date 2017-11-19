@@ -8,5 +8,9 @@ Scans Exercises
 > myFibs2 :: [Integer]
 > myFibs2 = takeWhile (< 100) $ 1 : scanl (+) 1 myFibs2
 
+
+factorial is not defined with itself but it is using scanl.
+I couldn't figure out how to define a factorial in terms of itself with scanl.
+
 > myFactorial :: [Integer]
-> myFactorial = 1 : scanl (*) 2 myFactorial
+> myFactorial = scanl (*) 1 [1..]
