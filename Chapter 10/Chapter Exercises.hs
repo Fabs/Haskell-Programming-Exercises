@@ -45,9 +45,11 @@ myOr = foldr (||) False
 -- 2.
 
 myAny :: (a -> Bool) -> [a] -> Bool
-myAny = (flip foldr) False . ((const .) . id)
+myAny = (flip foldr) False . ((||) .)
 
 -- 3
 
 myElem :: Eq a => a -> [a] -> Bool
-myElem = (.) ((flip foldr) False) ((const .) . (==))
+--myElem e = foldr (\x acc -> acc || (e == x)) False
+-- http://pointfree.io/
+myElem = flip foldr False . (flip (||) .) . (==)
