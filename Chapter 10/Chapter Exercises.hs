@@ -120,3 +120,62 @@ myFilter = flip (foldr . (flip (flip . (((<*>) .) . (flip ((<*>) . (((.) .) . (i
     if' True = const
     --if' False _ y = y
     if' False = const id
+
+-- 7.
+
+squish :: [[a]] -> [a]
+squish = foldr (\x acc -> x ++ acc) []
+
+-- 8.
+
+squishMap :: (a -> [b]) -> [a] -> [b]
+--squishMap f = foldr (\x acc -> (f x) ++ acc) []
+--squishMap = flip (\f -> foldr (\x acc -> (f x) ++ acc)) []
+--squishMap = flip ((foldr) . (\f x acc -> (f x) ++ acc)) []
+--squishMap = flip ((foldr) . (\f x -> (++) (f x))) []
+--squishMap = flip ((foldr) . (\f -> (++) . (\x -> f x))) []
+--squishMap = flip ((foldr) . (\f -> (++) . f)) []
+squishMap = flip ((foldr) . ((.) (++))) []
+
+-- 9.
+
+squishAgain :: [[a]] -> [a]
+--squishAgain l = squishMap (\x -> id x) l
+squishAgain = squishMap id
+
+-- 10.
+
+myMaximumBy :: (a -> a -> Ordering) -> [a] -> a
+myMaximumBy _ [] = error "Gotta have something to order"
+-- reverse required to meet second test example
+-- Unable to make point free because of pattern matching above
+myMaximumBy f (x:xs) = foldr g x (reverse xs)
+  where
+    --g = \b acc -> if' ((f acc b) == GT) acc b
+    --g = \b -> flip (\acc -> if' ((f acc b) == GT) acc) b
+    --g = \b -> flip ((\acc -> (if' ((f acc b) == GT))) <*> (\acc -> acc)) b
+    --g = \b -> flip ((if' . (\acc -> (f acc b) == GT)) <*> id) b
+    --g = \b -> flip ((if' . (flip (\acc -> (==) (f acc b)) GT)) <*> id) b
+    --g = \b -> flip ((if' . (flip ((==) . (\acc -> f acc b)) GT)) <*> id) b
+    --g = \b -> flip ((if' . (flip ((==) . (flip (\acc -> f acc) b)) GT)) <*> id) b
+    --g = (flip . (\b -> (if' . (flip ((==) . (flip f b)) GT)) <*> id)) <*> id
+    --g = (flip . (\b -> ((<*>) (if' . (flip ((==) . (flip f b)) GT))) id)) <*> id
+    --g = (flip . (flip (\b -> (<*>) (if' . (flip ((==) . (flip f b)) GT))) id)) <*> id
+    --g = (flip . (flip ((<*>) . (\b -> if' . (flip ((==) . (flip f b)) GT))) id)) <*> id
+    --g = (flip . (flip ((<*>) . ((if' .) . (\b -> flip ((==) . (flip f b)) GT))) id)) <*> id
+    --g = (flip . (flip ((<*>) . ((if' .) . (flip (\b -> flip ((==) . (flip f b))) GT))) id)) <*> id
+    --g = (flip . (flip ((<*>) . ((if' .) . (flip (flip . (\b -> (==) . (flip f b))) GT))) id)) <*> id
+    g = (flip . (flip ((<*>) . ((if' .) . (flip (flip . (((==) .) . (flip f))) GT))) id)) <*> id
+    if' True = const
+    if' False = const id
+
+-- 11.
+
+myMinimumBy :: (a -> a -> Ordering) -> [a] -> a
+myMinimumBy _ []     = error "Gotta have something to order"
+myMinimumBy f (x:xs) = foldr g x (reverse xs)
+  where
+    -- From above
+    g = (flip . (flip ((<*>) . ((if' .) . (flip (flip . (((==) .) . (flip f))) LT))) id)) <*> id
+    if' True = const
+    if' False = const id
