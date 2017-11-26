@@ -73,3 +73,11 @@ Not the prettiest but it does basically capitalize each sentence in a paragraph
 >     endsWithSentencePunctuation [] = False
 >     endsWithSentencePunctuation (c:[]) = elem c ".!?"
 >     endsWithSentencePunctuation (_:cs) = endsWithSentencePunctuation cs
+
+Phone Exercise
+
+See "Phone Exercises.hs"
+
+Hutton's Razor
+
+See "Hutton's Razor.hs"

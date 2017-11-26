@@ -1,6 +1,7 @@
 -- Phone Exercises
 
 import Data.Char
+import Data.List
 
 newtype DaPhone = DaPhone [Button] deriving Show
 data Button = Button Char [Char] deriving Show
@@ -65,7 +66,9 @@ getButtonCount (Button d l) c
   then Just $ fst $ foldr (\x (acc, stop) ->
                       if ((toLower c) == x) || ((toUpper c) == x)
                         then if stop then (acc, True) else (acc+1, True)
-                        else if stop then (acc, True) else (acc+1, False)) (0,False) (reverse l)
+                        else if stop
+                             then (acc, True)
+                             else (acc+1, False)) (0,False) (reverse l)
   else Nothing
 
 -- Case insensitive elem check for Char
@@ -92,4 +95,48 @@ fingerTaps = foldr (\(_, x) acc -> x + acc) 0
 answer3 :: [(String, Presses)]
 answer3 = map (\(x, taps) -> (x, fingerTaps taps)) answer2
 
+-- 4.
+mostPopularLetter :: String -> Char
+mostPopularLetter []    = undefined
+mostPopularLetter str@(s:ss) = case isLetter s of
+  False -> mostPopularLetter ss
+  True  -> fst $ foldr (\c (ap, ac) -> if isLetter c && countChar str c > ac
+                                       then (c, countChar str c)
+                                       else (ap, ac)) (s,1) ss
+  where
+    countChar :: String -> Char -> Int
+    countChar l c = foldr (\x acc -> if x == c then acc+1 else acc) 0 l
 
+answer4 :: [(String, Char, Presses)]
+answer4 = map (\x -> ( x
+                     , mostPopularLetter x
+                     , fingerTaps $ reverseTaps myPhone $ mostPopularLetter x)
+                     ) convo
+
+-- 5.
+coolestLtr :: [String] -> Char
+coolestLtr [] = undefined
+coolestLtr s = mostPopularLetter (concat s)
+
+coolestWord :: [String] -> String
+coolestWord s  = go $ (map stripEndingPunctuation . words . concat . intersperse " ") s
+  where
+    go []     = ""
+    go allWords@(w:ws) = fst $ foldr (\x (aw, ac) -> if countWord x allWords > ac
+                                                     then (x, countWord x allWords)
+                                                     else (aw, ac)) (w,1) ws
+    countWord w ws = (length . filter (w==)) ws
+
+-- Strip out ending punctuation from words to get a better count on the coolest word
+stripEndingPunctuation :: String -> String
+stripEndingPunctuation [] = []
+stripEndingPunctuation word = reverse $ go $ reverse word
+  where go [] = []
+        go str@(s:ss)
+          | isPunctuation s = ss
+          | otherwise       = str
+
+answer5_coolestLtr :: Char
+answer5_coolestLtr = coolestLtr convo
+answer5_coolestWord :: String
+answer5_coolestWord = coolestWord convo
