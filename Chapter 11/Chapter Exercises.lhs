@@ -51,3 +51,25 @@ As-patterns
 >     capitalizeWord' :: String -> (String, String)
 >     capitalizeWord' []          = ([],[])
 >     capitalizeWord' word@(w:ws) = (word, (toUpper w):ws)
+
+Language Exercises
+
+> capitalizeWord :: String -> String
+> capitalizeWord [] = []
+> capitalizeWord (x:xs) = (toUpper x):xs
+
+
+Not the prettiest but it does basically capitalize each sentence in a paragraph
+
+> capitalizeParagraph :: String -> String
+> capitalizeParagraph = capitalizeWord . unwords . capPar . words
+>   where
+>     capPar []       = []
+>     capPar (x:[])   = [x]
+>     capPar (x:y:zs) =
+>       if (endsWithSentencePunctuation x)
+>       then x:(capitalizeWord y):(capPar zs)
+>       else x:y:(capPar zs)
+>     endsWithSentencePunctuation [] = False
+>     endsWithSentencePunctuation (c:[]) = elem c ".!?"
+>     endsWithSentencePunctuation (_:cs) = endsWithSentencePunctuation cs
