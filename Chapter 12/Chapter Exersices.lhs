@@ -63,4 +63,10 @@ Validate the word
 > vowels = "aeiou"
 
 > mkWord :: String -> Maybe Word'
-> mkWord = undefined
+> mkWord w = case vowelCount > consonantCount of
+>   True  -> Nothing
+>   False -> Just $ Word' w
+>   where
+>     vowelCount = countVowels w
+>     consonantCount = foldr (\x acc -> if elem x consonants then acc+1 else acc) 0 w
+>     consonants = [ x  | x <- ['a'..'z'], not $ elem x vowels ]
