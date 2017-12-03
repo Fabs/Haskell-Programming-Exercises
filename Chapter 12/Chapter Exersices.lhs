@@ -177,8 +177,8 @@ Cheated on question 6 a little bit with some help from this answer:
 https://github.com/dwayne/haskell-programming/blob/master/ch12/Maybe.hs
 
 On my own I was searching for Nothing in the list and if that didn't exist then
-I would create the list as normal without needing to check much. My solution was
-not lazy.
+I would create the list as normal without needing to check much. My solution not as
+efficient as it would need to look through the list twice on worst case.
 
 > --  if (isNothingInList ml)
 > --    then Nothing
@@ -187,3 +187,84 @@ not lazy.
 > --    isNothingInList []          = False
 > --    isNothingInList (Nothing:_) = True
 > --    isNothingInList (_:xs)      = isNothingInList xs
+
+Small library for Either
+
+1.
+
+> lefts' :: [Either a b] -> [a]
+> lefts' = foldr (\x acc -> case x of
+>                             Left a  -> a:acc
+>                             Right _ -> acc) []
+
+2.
+
+> rights' :: [Either a b] -> [b]
+> rights' = foldr (\x acc -> case x of
+>                              Left _  -> acc
+>                              Right b -> b:acc) []
+
+3.
+
+> partitionEithers' :: [Either a b] -> ([a], [b])
+> partitionEithers' = foldr (\x (as, bs) -> case x of
+>                                             Left a -> (a:as, bs)
+>                                             Right b -> (as, b:bs)) ([],[])
+
+4.
+
+> eitherMaybe' :: (b -> c) -> Either a b -> Maybe c
+> eitherMaybe' f (Right b) = Just $ f b
+> eitherMaybe' _ (Left _)  = Nothing
+
+5.
+
+> either' :: (a -> c) -> (b -> c) -> Either a b -> c
+> either' f _ (Left a)  = f a
+> either' _ f (Right b) = f b
+
+6.
+
+> eitherMaybe'' :: (b -> c) -> Either a b -> Maybe c
+> eitherMaybe'' f = either' (const Nothing) (Just . f)
+
+Peaked at https://github.com/dwayne/haskell-programming/blob/master/ch12/Either.hs#L58
+because I forgot to use const for the first function for either'
+
+Write your own iterate and unfoldr
+
+1.
+
+> myIterate :: (a -> a) -> a -> [a]
+> myIterate f x = x:myIterate f (f x)
+
+2.
+
+> myUnfoldr :: (b -> Maybe (a, b)) -> b -> [a]
+> myUnfoldr f b = case (f b) of
+>                 Nothing     -> []
+>                 Just (a', b') -> a':myUnfoldr f b'
+
+3.
+
+> betterIterate :: (a -> a) -> a -> [a]
+> betterIterate f = myUnfoldr (\x -> Just(x, f x))
+
+Finally something other than a list!
+
+> data BinaryTree a = Leaf | Node (BinaryTree a) a (BinaryTree a)
+>        deriving (Eq, Ord, Show)
+
+1.
+
+> unfold :: (a -> Maybe (a,b,a)) -> a -> BinaryTree b
+> unfold f a = case f a of
+>              Nothing          -> Leaf
+>              Just (a1, b, a2) -> Node (unfold f a1) b (unfold f a2)
+
+2.
+
+> treeBuild :: Integer -> BinaryTree Integer
+> treeBuild n = unfold (\i -> if i > 0
+>                             then Just ((i-1), (i-1), (i-1))
+>                             else Nothing) n
