@@ -7,6 +7,10 @@ import Data.List (intersperse)
 import System.Exit (exitSuccess)
 import System.Random (randomRIO)
 
+-- Tests
+import Test.Hspec
+--import Test.QuickCheck
+
 newtype WordList = WordList [String] deriving (Eq, Show)
 
 allWords :: IO WordList
@@ -44,7 +48,7 @@ randomWord (WordList wl) = do
 randomWord' :: IO String
 randomWord' = gameWords >>= randomWord
 
-data Puzzle = Puzzle String [Maybe Char] [Char]
+data Puzzle = Puzzle String [Maybe Char] [Char] deriving Eq
 
 instance Show Puzzle where
   show (Puzzle _ discovered guessed) =
@@ -132,3 +136,29 @@ main = do
   word <- randomWord'
   let puzzle = freshPuzzle (fmap toLower word)
   runGame puzzle
+
+-- Tests for chapter 14 exercises
+-- Just do unit tests because Puzzle has man invalid states which would need
+-- to be accounted for in property tests
+runTests :: IO ()
+runTests = hspec $ do
+    let p = freshPuzzle "hello"
+        correctGuess_h = Puzzle "hello" [Just 'h', Nothing, Nothing, Nothing, Nothing] ['h']
+        incorrectGuess_z = Puzzle "hello" (take 5 (repeat Nothing)) ['z']
+
+    describe "fillInCharacter tests" $ do
+      it "missing letter should be filled in when guess is correct" $ do
+        (fillInCharacter p 'h') `shouldBe` correctGuess_h
+      it "missing letter should NOT be filled in when guess is incorrect" $ do
+        (fillInCharacter p 'z') `shouldBe` incorrectGuess_z
+    describe "handleGuess tests" $ do
+      it "Already guessed" $ do
+        p2 <- handleGuess p 'z'
+        p3 <- handleGuess p2 'z'
+        p2 `shouldBe` p3
+      it "Guessed correctly" $ do
+        p2 <- handleGuess p 'h'
+        p2 `shouldBe` correctGuess_h
+      it "Guessed incorrectly" $ do
+        p2 <- handleGuess p 'z'
+        p2 `shouldBe` incorrectGuess_z

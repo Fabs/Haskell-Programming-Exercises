@@ -8,8 +8,9 @@ Example usage
 
 --}
 
-
 import Data.Char
+import System.IO (hSetBuffering, stdout, BufferMode(NoBuffering))
+import System.Exit (exitFailure)
 
 ceaser :: Int    -- Number of right shifts
        -> String -- Original message
@@ -57,9 +58,8 @@ VPlain "meetatdawn"
 
 -}
 
-
 newtype VKeyword  = VKeyword String deriving Show
-newtype VPlain    = VPlain  String deriving Show
+newtype VPlain    = VPlain  String deriving (Show, Eq)
 newtype VCipher   = VCipher String deriving Show
 
 vEncode :: VKeyword -> VPlain -> VCipher
@@ -77,3 +77,31 @@ vDecode (VKeyword key) (VCipher cipher) = VPlain (vEncode' key cipher)
     vEncode' _      []     = []
     vEncode' []     cipher' = vEncode' key cipher'
     vEncode' (k:ks) (c:cs) = (ceaserShift (negate $ ord k) c):(vEncode' ks cs)
+
+-- Chapter 13 exercise
+ceaserMain :: IO ()
+ceaserMain = do
+  hSetBuffering stdout NoBuffering
+  putStr $ "Enter shift number for ceaser cipher: "
+  shift <- getLine
+  if (any (not . isDigit) shift)
+  then do
+    putStrLn "Sorry, you didn't enter an Int datatype. Exiting."
+    exitFailure
+  else
+    return ()
+
+  putStr $ "Enter string to encode: "
+  srcString <- getLine
+
+  putStrLn $ "The resulting cipher is: " ++ ceaser (read shift) srcString
+
+vEncodeMain :: IO ()
+vEncodeMain = do
+  hSetBuffering stdout NoBuffering
+  putStr $ "Enter keyword for vigenère cipher: "
+  keyword <- getLine
+  putStr $ "Enter string to encode: "
+  srcString <- getLine
+
+  putStrLn $ "The resulting cipher is: " ++ (show $ vEncode (VKeyword keyword) (VPlain srcString))
