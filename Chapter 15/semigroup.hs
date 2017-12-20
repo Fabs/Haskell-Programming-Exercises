@@ -1,5 +1,13 @@
-import Test.QuickCheck (quickCheck, arbitrary, Arbitrary, oneof, elements)
+import Test.QuickCheck ( quickCheck
+                       , arbitrary
+                       , Arbitrary
+                       , CoArbitrary
+                       , oneof
+                       )
 import Data.Semigroup
+
+semigroupAssoc :: (Eq m, Semigroup m) => m -> m -> m -> Bool
+semigroupAssoc a b c = (a <> (b <> c)) == ((a <> b) <> c)
 
 -- 1.
 
@@ -11,11 +19,7 @@ instance Semigroup Trivial where
 instance Arbitrary Trivial where
   arbitrary = return Trivial
 
-semigroupAssoc :: (Eq m, Semigroup m) => m -> m -> m -> Bool
-semigroupAssoc a b c = (a <> (b <> c)) == ((a <> b) <> c)
-
 type TrivAssoc = Trivial -> Trivial -> Trivial -> Bool
-
 
 -- 2.
 
@@ -119,7 +123,7 @@ type BoolDisjAssoc = BoolDisj -> BoolDisj -> BoolDisj -> Bool
 data Or a b = Fst a | Snd b deriving (Eq, Show)
 
 instance Semigroup (Or a b) where
-  x@(Fst _) <> y@(Fst _) = y
+  (Fst _)   <> y@(Fst _) = y
   x@(Snd _) <> _         = x
   _ <> y@(Snd _)         = y
 
@@ -135,8 +139,16 @@ type OrAssoc = (Or Any All) -> (Or Any All) -> (Or Any All) -> Bool
 
 newtype Combine a b = Combine { unCombine :: (a -> b) }
 
+instance Show (Combine a b) where
+  show _ = "Combine function here"
+
 instance (Semigroup b) => Semigroup (Combine a b) where
   (Combine f) <> (Combine g) = Combine (\x -> (f x) <> (g x))
+
+instance (CoArbitrary a, Arbitrary b) => Arbitrary (Combine a b) where
+  arbitrary = do
+    f <- arbitrary
+    return $ Combine f
 
 -- 10.
 
@@ -181,5 +193,9 @@ main = do
   quickCheck (semigroupAssoc :: BoolDisjAssoc)
   putStrLn "OrAssoc"
   quickCheck (semigroupAssoc :: OrAssoc)
+  putStrLn "CombineAssoc"
+  quickCheck (
+    \a b c x -> ((unCombine ((a::(Combine Any All)) <> (b <> c))) (Any (x::Bool))) == ((unCombine ((a <> b) <> c)) (Any (x::Bool)))
+    )
   putStrLn "ValidationAssoc"
   quickCheck (semigroupAssoc :: ValidationAssoc)
