@@ -154,8 +154,16 @@ instance (CoArbitrary a, Arbitrary b) => Arbitrary (Combine a b) where
 
 newtype Comp a = Comp { unComp :: (a -> a) }
 
+instance Show (Comp a) where
+  show _ = "Comp function here"
+
 instance (Semigroup a) => Semigroup (Comp a) where
   (Comp f) <> (Comp g) = (Comp (\x -> (f x <> g x)))
+
+instance (CoArbitrary a, Arbitrary a) => Arbitrary (Comp a) where
+  arbitrary = do
+    f <- arbitrary
+    return $ Comp f
 
 -- 11.
 
@@ -196,6 +204,10 @@ main = do
   putStrLn "CombineAssoc"
   quickCheck (
     \a b c x -> ((unCombine ((a::(Combine Any All)) <> (b <> c))) (Any (x::Bool))) == ((unCombine ((a <> b) <> c)) (Any (x::Bool)))
+    )
+  putStrLn "CompAssoc"
+  quickCheck (
+    \a b c x -> ((unComp ((a::(Comp Any)) <> (b <> c))) (Any (x::Bool))) == ((unComp ((a <> b) <> c)) (Any (x::Bool)))
     )
   putStrLn "ValidationAssoc"
   quickCheck (semigroupAssoc :: ValidationAssoc)
