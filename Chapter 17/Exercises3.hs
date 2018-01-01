@@ -1,3 +1,7 @@
+-- Exercises: Lookups
+
+-- 3.
+
 import Data.List (elemIndex)
 
 x :: Maybe Int

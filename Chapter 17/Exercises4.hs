@@ -1,3 +1,7 @@
+-- Exercises: Lookups
+
+-- 4.
+
 xs = [1,2,3]
 ys = [4,5,6]
 
