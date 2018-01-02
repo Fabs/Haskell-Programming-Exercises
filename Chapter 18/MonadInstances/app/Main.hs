@@ -19,3 +19,10 @@ checkBasedOnArgs ("List":_) = checkListEither
 checkBasedOnArgs (x:_) = do
   putStrLn $ "First argument '" ++ x ++ "' didn't match a check."
   putStrLn $ "Try one of the following:\n Sum\n Nope\n PhhhbbtttEither\n List"
+checkBasedOnArgs [] = do
+  putStrLn "Enter one of these test names as argument:"
+  putStrLn "  Sum"
+  putStrLn "  Nope"
+  putStrLn "  PhhhbbtttEither"
+  putStrLn "  Identity"
+  putStrLn "  List"
