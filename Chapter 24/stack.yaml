@@ -4,4 +4,4 @@ packages:
 - '.'
 extra-deps:
 - haphviz-0.2.0.1
-resolver: lts-7.16
+resolver: lts-10.3
