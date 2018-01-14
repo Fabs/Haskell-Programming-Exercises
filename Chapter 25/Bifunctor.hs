@@ -1,3 +1,5 @@
+import Prelude hiding (Left, Right, Either)
+
 class Bifunctor p where
   {-# MINIMAL bimap | first, second #-}
   
@@ -27,3 +29,28 @@ data Drei a b c = Drei a b c
 
 instance Bifunctor (Drei a) where
   bimap f g (Drei e a c) = Drei e (f a) (g c)
+
+-- 4.
+data SuperDrei a b c = SuperDrei a b
+
+instance Bifunctor (SuperDrei a) where
+  bimap f _ (SuperDrei e a) = SuperDrei e (f a)
+
+-- 5.
+data SemiDrei a b c = SemiDrei a
+
+instance Bifunctor (SemiDrei a) where
+  bimap _ _ (SemiDrei e) = SemiDrei e
+
+-- 6.
+data Quadriceps a b c d = Quadzzz a b c d
+
+instance Bifunctor (Quadriceps a b) where
+  bimap f g (Quadzzz e1 e2 a c) = Quadzzz e1 e2 (f a) (g c)
+
+-- 7.
+data Either a b = Left a | Right b
+
+instance Bifunctor Either where
+  bimap f _ (Left a) = Left (f a)
+  bimap _ g (Right c) = Right (g c)
