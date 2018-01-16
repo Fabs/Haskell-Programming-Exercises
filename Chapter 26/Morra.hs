@@ -5,11 +5,6 @@
 -- TODO: Replace `read` because it likely will throw:
 -- *** Exception: Prelude.read: no parse
 
--- TODO: Improve AI to look for patterns for other players.
---       Pick up on three move patterns.
-
--- TODO: Make sure the AI always guess something that is possible for them to win
-
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
 import Control.Monad.Trans.State
@@ -68,14 +63,14 @@ humanBattle = do
   print endState
 
 
-
 -- Game loop
 morraLoop :: StateT Morra IO ()
 morraLoop = do
   s <- (lift . execStateT morraTurn) =<< get
   if isGameOver s
   then do
-    lift $ putStrLn "Detected a winner or tie.\nGame over."
+    lift $ putStrLn $ "Detected a winner or tie after " ++ (show $ gameLength s) ++ " turns."
+    lift $ putStrLn "Game Over."
     put s
   else (lift $ execStateT morraLoop s) >>= put
 
@@ -91,12 +86,60 @@ morraGetPlay (Morra players _) (Player (Name name) _ Human) = do
   putStr "\ESC[2J"
   return $ Play (Name name) (Hand hand) (Guess guess)
 
-morraGetPlay (Morra players _) (Player (Name name) _ AI) = do
-  let num_players = toInteger (length players)
+morraGetPlay (Morra players history) (Player (Name name) _ AI) = do
+  -- Try to determine a pattern from play history
+  -- Get all other players
+  let opponents = filter (\(Player (Name n) _ _) -> n /= name) players
+  predictions <- sequenceA $ map (predictPlay history) opponents
+
+  -- Add up all the player predictions for the final guess
+  let finalPrediction = sum predictions
+
+  -- Choose a random play
   hand <- randomRIO (0, 5)
-  guess <- randomRIO (0, num_players)
-  -- Clear screen to hide from other humans
+
+  -- Add my play to prediction
+  let guess = hand + (toInteger finalPrediction)
   return $ Play (Name name) (Hand hand) (Guess guess)
+
+predictPlay :: PlayHistory -> Player -> IO Hand
+predictPlay (PlayHistory allPlays) (Player (Name name) _ _) = do
+  -- filter out plays for player
+  let ph = concat $ map (\(Plays ps) -> filter (\(Play (Name n) _ _) -> n == name) ps) allPlays
+
+  -- Collect all the predictions
+  let predictedGuesses = findPatternThreeGuesses (take 2 ph) ph
+
+  if (length predictedGuesses > 0)
+  then do
+    -- Randomly select a prediction
+    playPick <- (predictedGuesses !!) <$> randomRIO (0, length predictedGuesses - 1)
+    -- Fuzz pick
+    playPick' <- fuzzPick playPick
+    return playPick'
+  else randomRIO (0, 5) >>= return . Hand
+  where
+    findPatternThreeGuesses :: [Play] -- Current plays
+                            -> [Play] -- Past plays
+                            -> [Hand] -- Pattern matches
+    findPatternThreeGuesses [] _       = []
+    findPatternThreeGuesses (_:[]) _   = []
+    findPatternThreeGuesses _ []       = []
+    findPatternThreeGuesses _ (_:[])   = []
+    findPatternThreeGuesses _ (_:_:[]) = []
+    -- Get the last two plays
+    -- See if those two plays repeat in history at all
+    findPatternThreeGuesses current@((Play _ ca _):(Play _ cb _):_) ((Play _ ha _):phb@(Play _ hb _):phc@(Play _ hc _):phs)
+      | ca == ha && cb == hb               = hc:findPatternThreeGuesses current (phb:phc:phs)
+      | otherwise                          = findPatternThreeGuesses current (phb:phc:phs)
+    fuzzPick :: Hand -> IO Hand
+    fuzzPick (Hand h) = do
+      fuzzFactor <- randomRIO (-1, 1)
+      return $ if (fuzzFactor + h) >= 5
+      then Hand 5
+      else if (fuzzFactor + h) <= 0
+           then Hand 0
+           else Hand (fuzzFactor + h)
 
 -- One turn of Morra
 morraTurn :: StateT Morra IO ()
@@ -148,6 +191,9 @@ morraHumanOnlySetup = do
 
 isGameOver :: Morra -> Bool
 isGameOver (Morra ps _) = foldr (\(Player _ s _) a -> ((s >= (Score 3)) || a)) False ps
+
+gameLength :: Morra -> Integer
+gameLength (Morra _ (PlayHistory h)) = toInteger $ length h
 
 -- Apply turn based on plays
 applyTurn :: Plays -> Morra -> Morra
