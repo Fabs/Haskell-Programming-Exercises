@@ -1,0 +1,6 @@
+*.prof
+*.o
+*.hi
+bench
+benchSet
+benchVector
