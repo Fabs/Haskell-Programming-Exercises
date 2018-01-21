@@ -8,13 +8,17 @@ empty = DL $ \_ -> []
 {-# INLINE empty #-}
 
 -- 2.
+-- I had implemented to singleton wrong at first.
+-- Looked up help here:
+-- https://hackage.haskell.org/package/dlist-0.8.0.4/docs/src/Data-DList.html#singleton
 singleton :: a -> DList a
-singleton a = DL $ \_ -> [a]
+--singleton a = DL $ \_ -> [a]
+singleton a = DL $ \x -> a:x
 {-# INLINE singleton #-}
 
 -- 3.
 toList :: DList a -> [a]
-toList (DL f) = f [] 
+toList (DL f) = f []
 {-# INLINE toList #-}
 
 -- 4.
