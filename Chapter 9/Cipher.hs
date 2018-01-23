@@ -59,8 +59,8 @@ VPlain "meetatdawn"
 -}
 
 newtype VKeyword  = VKeyword String deriving Show
-newtype VPlain    = VPlain  String deriving (Show, Eq)
-newtype VCipher   = VCipher String deriving Show
+newtype VPlain    = VPlain  { unVPlain :: String } deriving (Show, Eq)
+newtype VCipher   = VCipher { unVCipher :: String } deriving Show
 
 vEncode :: VKeyword -> VPlain -> VCipher
 vEncode (VKeyword []) (VPlain plain)  = VCipher plain
